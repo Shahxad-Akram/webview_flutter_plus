@@ -1,5 +1,5 @@
 # webview_flutter_plus
-webview_flutter_plus is a powerful extension of [webview_flutter](https://pub.dartlang.org/packages/webview_flutter). This Flutter package helps to load HTML, CSS and Javascript content even from Assets or Strings. This inherits all features of webview_flutter with minor API changes.
+webview_flutter_plus is a powerful extension of [webview_flutter](https://pub.dartlang.org/packages/webview_flutter). This package helps to load HTML, CSS and Javascript content even from Assets or Strings. This inherits all features of webview_flutter with minor API changes.
 
 Do check [**flutter_tex**](https://pub.dartlang.org/packages/flutter_tex) a powerful implementation of this package.
 
