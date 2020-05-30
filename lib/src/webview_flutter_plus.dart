@@ -296,13 +296,13 @@ class _WebViewPlusState extends State<WebViewPlus> {
     );
   }
 
-  void _handleRequest(HttpRequest request) {
-    if (widget.onRequest != null) widget.onRequest(request);
-  }
-
   @override
   void dispose() {
     _server.close();
     super.dispose();
+  }
+
+  void _handleRequest(HttpRequest request) {
+    if (widget.onRequest != null) widget.onRequest(request);
   }
 }

@@ -12,7 +12,7 @@ class WebViewFlutterPlusServer {
   Future<void> close() async {
     if (this._server != null) {
       await this._server.close(force: true);
-    //  print('Server running on http://localhost:$_port closed');
+      //  print('Server running on http://localhost:$_port closed');
       this._server = null;
     }
   }
@@ -23,7 +23,7 @@ class WebViewFlutterPlusServer {
     runZoned(() {
       HttpServer.bind('localhost', 0, shared: true).then((server) {
         this._port = server.port;
-     //   print('Server running on http://localhost:' + _port.toString());
+        //   print('Server running on http://localhost:' + _port.toString());
         this._server = server;
         server.listen((HttpRequest httpRequest) async {
           onRequest(httpRequest);
