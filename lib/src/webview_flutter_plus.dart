@@ -185,6 +185,23 @@ class WebViewPlusController implements WebViewController {
 
   WebViewPlusController._(this._webViewController, this._serverPort);
 
+  Future<double> getWebviewPlusHeight() async {
+    String getHeightScript = r"""
+    getWebviewFlutterPlusHeight();
+    function getWebviewFlutterPlusHeight(){
+    var element = document.body;
+    var height = element.offsetHeight,
+        style = window.getComputedStyle(element)
+    return ['top', 'bottom']
+        .map(function (side) {
+            return parseInt(style["margin-" + side]);
+        })
+        .reduce(function (total, side) {
+            return total + side;
+        }, height)}""";
+    return double.parse(await evaluateJavascript(getHeightScript));
+  }
+
   @override
   Future<bool> canGoBack() {
     return _webViewController.canGoBack();
@@ -239,12 +256,13 @@ class WebViewPlusController implements WebViewController {
     return _webViewController.goForward();
   }
 
-  void loadAsset(String uri) {
-    this.loadUrl('http://localhost:$_serverPort/$uri');
+  Future<void> loadAsset(String uri) {
+    return this.loadUrl('http://localhost:$_serverPort/$uri');
   }
 
-  void loadString(String code) {
-    this.loadUrl(Uri.dataFromString(code, mimeType: 'text/html').toString());
+  Future<void> loadString(String code) {
+    return this
+        .loadUrl(Uri.dataFromString(code, mimeType: 'text/html').toString());
   }
 
   @override
