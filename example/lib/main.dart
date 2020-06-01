@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 void main() {
-  runApp(InAppWebAppExample());
+  runApp(WebViewPlusExample());
 }
 
-class InAppWebAppExample extends StatelessWidget {
+class WebViewPlusExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: InAppWebAppMainPage(),
+      home: WebViewPlusExampleMainPage(),
     );
   }
 }
 
-class InAppWebAppMainPage extends StatefulWidget {
+class WebViewPlusExampleMainPage extends StatefulWidget {
   @override
-  _InAppWebAppMainPageState createState() => _InAppWebAppMainPageState();
+  _WebViewPlusExampleMainPageState createState() => _WebViewPlusExampleMainPageState();
 }
 
-class _InAppWebAppMainPageState extends State<InAppWebAppMainPage> {
+class _WebViewPlusExampleMainPageState extends State<WebViewPlusExampleMainPage> {
   WebViewPlusController _controller;
-  double _height = 1;
+  double _height = 1000;
 
   @override
   Widget build(BuildContext context) {

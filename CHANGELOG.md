@@ -1,3 +1,6 @@
+## [0.1.1+1] - June 1, 2020
+* Minor fixes.
+
 ## [0.1.1] - May 30, 2020
 * `getWebviewPlusHeight()` method added in `WebViewPlusController`
 
