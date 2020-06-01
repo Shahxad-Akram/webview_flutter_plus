@@ -1,3 +1,6 @@
+## [0.1.1+2] - June 2, 2020
+* `CodeInjection` added
+
 ## [0.1.1+1] - June 1, 2020
 * Minor fixes.
 

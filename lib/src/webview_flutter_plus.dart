@@ -8,6 +8,16 @@ import 'package:webview_flutter_plus/src/webview_flutter_plus_server.dart';
 
 typedef void WebViewPlusCreatedCallback(WebViewPlusController controller);
 
+class CodeInjection {
+  /// Targeted Code in index.html
+  final String from;
+
+  /// Code to replace with.
+  final String to;
+
+  CodeInjection({@required this.from, @required this.to});
+}
+
 class WebViewPlus extends StatefulWidget {
   /// If not null invoked once the web view is created.
   final WebViewPlusCreatedCallback onWebViewCreated;
@@ -145,7 +155,11 @@ class WebViewPlus extends StatefulWidget {
   /// The default policy is [AutoMediaPlaybackPolicy.require_user_action_for_all_media_types].
   final AutoMediaPlaybackPolicy initialMediaPlaybackPolicy;
 
+  /// Callback for [HttpRequest] from client side.
   final void Function(HttpRequest httpRequest) onRequest;
+
+  /// This helps to replace code in loaded index.html at a particular position.
+  final CodeInjection codeInjection;
 
   /// Creates a new web view.
   ///
@@ -169,7 +183,8 @@ class WebViewPlus extends StatefulWidget {
       this.userAgent,
       this.initialMediaPlaybackPolicy =
           AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
-      this.onRequest})
+      this.onRequest,
+      this.codeInjection})
       : assert(javascriptMode != null),
         assert(initialMediaPlaybackPolicy != null),
         super(key: key);
@@ -184,23 +199,6 @@ class WebViewPlusController implements WebViewController {
   final int _serverPort;
 
   WebViewPlusController._(this._webViewController, this._serverPort);
-
-  Future<double> getWebviewPlusHeight() async {
-    String getHeightScript = r"""
-    getWebviewFlutterPlusHeight();
-    function getWebviewFlutterPlusHeight(){
-    var element = document.body;
-    var height = element.offsetHeight,
-        style = window.getComputedStyle(element)
-    return ['top', 'bottom']
-        .map(function (side) {
-            return parseInt(style["margin-" + side]);
-        })
-        .reduce(function (total, side) {
-            return total + side;
-        }, height)}""";
-    return double.parse(await evaluateJavascript(getHeightScript));
-  }
 
   @override
   Future<bool> canGoBack() {
@@ -244,6 +242,23 @@ class WebViewPlusController implements WebViewController {
   @override
   Future<String> getTitle() {
     return _webViewController.getTitle();
+  }
+
+  Future<double> getWebviewPlusHeight() async {
+    String getHeightScript = r"""
+    getWebviewFlutterPlusHeight();
+    function getWebviewFlutterPlusHeight(){
+    var element = document.body;
+    var height = element.offsetHeight,
+        style = window.getComputedStyle(element)
+    return ['top', 'bottom']
+        .map(function (side) {
+            return parseInt(style["margin-" + side]);
+        })
+        .reduce(function (total, side) {
+            return total + side;
+        }, height)}""";
+    return double.parse(await evaluateJavascript(getHeightScript));
   }
 
   @override
@@ -299,7 +314,7 @@ class _WebViewPlusState extends State<WebViewPlus> {
       javascriptChannels: widget.javascriptChannels,
       onWebViewCreated: (controller) {
         _server = WebViewFlutterPlusServer()
-          ..start(_handleRequest).then((port) {
+          ..start(_handleRequest, widget.codeInjection).then((port) {
             widget.onWebViewCreated(WebViewPlusController._(controller, port));
           });
       },

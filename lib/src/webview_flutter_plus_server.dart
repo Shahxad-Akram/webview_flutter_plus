@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
+import 'package:webview_flutter_plus/src/webview_flutter_plus.dart';
 
 class WebViewFlutterPlusServer {
   HttpServer _server;
@@ -18,12 +20,13 @@ class WebViewFlutterPlusServer {
   }
 
   ///Starts the server
-  Future<int> start(Function(HttpRequest httpRequest) onRequest) async {
+  Future<int> start(Function(HttpRequest httpRequest) onRequest,
+      CodeInjection codeInjection) async {
     var completer = new Completer<int>();
     runZoned(() {
       HttpServer.bind('localhost', 0, shared: true).then((server) {
-        this._port = server.port;
         //   print('Server running on http://localhost:' + _port.toString());
+        this._port = server.port;
         this._server = server;
         server.listen((HttpRequest httpRequest) async {
           onRequest(httpRequest);
@@ -33,6 +36,10 @@ class WebViewFlutterPlusServer {
           path += (path.endsWith('/')) ? 'index.html' : '';
           try {
             body = (await rootBundle.load(path)).buffer.asUint8List();
+            if (codeInjection != null)
+              body = Uint8List.fromList(String.fromCharCodes(body)
+                  .replaceFirst(codeInjection.from, codeInjection.to)
+                  .codeUnits);
           } catch (e) {
             print(e.toString());
             httpRequest.response.close();

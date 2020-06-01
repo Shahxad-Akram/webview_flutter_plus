@@ -16,10 +16,12 @@ class WebViewPlusExample extends StatelessWidget {
 
 class WebViewPlusExampleMainPage extends StatefulWidget {
   @override
-  _WebViewPlusExampleMainPageState createState() => _WebViewPlusExampleMainPageState();
+  _WebViewPlusExampleMainPageState createState() =>
+      _WebViewPlusExampleMainPageState();
 }
 
-class _WebViewPlusExampleMainPageState extends State<WebViewPlusExampleMainPage> {
+class _WebViewPlusExampleMainPageState
+    extends State<WebViewPlusExampleMainPage> {
   WebViewPlusController _controller;
   double _height = 1000;
 
