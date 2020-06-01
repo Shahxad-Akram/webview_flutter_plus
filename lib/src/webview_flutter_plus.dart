@@ -159,7 +159,7 @@ class WebViewPlus extends StatefulWidget {
   final void Function(HttpRequest httpRequest) onRequest;
 
   /// This helps to replace code in loaded index.html at a particular position.
-  final CodeInjection codeInjection;
+  final CodeInjection Function() codeInjection;
 
   /// Creates a new web view.
   ///
@@ -314,7 +314,7 @@ class _WebViewPlusState extends State<WebViewPlus> {
       javascriptChannels: widget.javascriptChannels,
       onWebViewCreated: (controller) {
         _server = WebViewFlutterPlusServer()
-          ..start(_handleRequest, widget.codeInjection).then((port) {
+          ..start(widget.onRequest, widget.codeInjection).then((port) {
             widget.onWebViewCreated(WebViewPlusController._(controller, port));
           });
       },
@@ -333,9 +333,5 @@ class _WebViewPlusState extends State<WebViewPlus> {
   void dispose() {
     _server.close();
     super.dispose();
-  }
-
-  void _handleRequest(HttpRequest request) {
-    if (widget.onRequest != null) widget.onRequest(request);
   }
 }
