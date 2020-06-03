@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -155,12 +156,6 @@ class WebViewPlus extends StatefulWidget {
   /// The default policy is [AutoMediaPlaybackPolicy.require_user_action_for_all_media_types].
   final AutoMediaPlaybackPolicy initialMediaPlaybackPolicy;
 
-  /// Callback for [HttpRequest] from client side.
-  final void Function(HttpRequest httpRequest) onRequest;
-
-  /// This helps to replace code in loaded index.html at a particular position.
-  final CodeInjection Function() codeInjection;
-
   /// Creates a new web view.
   ///
   /// The web view can be controlled using a `WebViewController` that is passed to the
@@ -182,9 +177,7 @@ class WebViewPlus extends StatefulWidget {
       this.gestureNavigationEnabled = false,
       this.userAgent,
       this.initialMediaPlaybackPolicy =
-          AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
-      this.onRequest,
-      this.codeInjection})
+          AutoMediaPlaybackPolicy.require_user_action_for_all_media_types})
       : assert(javascriptMode != null),
         assert(initialMediaPlaybackPolicy != null),
         super(key: key);
@@ -195,10 +188,20 @@ class WebViewPlus extends StatefulWidget {
 
 class WebViewPlusController implements WebViewController {
   final WebViewController _webViewController;
+  final WebViewFlutterPlusServer _server;
+  final StreamController<HttpRequest> _httpStreamController;
 
-  final int _serverPort;
+  Stream<HttpRequest> _httpStream;
 
-  WebViewPlusController._(this._webViewController, this._serverPort);
+  int _serverPort;
+
+  List<CodeInjection> _codeInjections;
+
+  WebViewPlusController._(this._webViewController)
+      : this._httpStreamController = StreamController<HttpRequest>(),
+        this._server = WebViewFlutterPlusServer();
+
+  Stream<HttpRequest> get onHttpRequest => _httpStream;
 
   @override
   Future<bool> canGoBack() {
@@ -271,7 +274,8 @@ class WebViewPlusController implements WebViewController {
     return _webViewController.goForward();
   }
 
-  Future<void> loadAsset(String uri) {
+  Future<void> loadAsset(String uri, {List<CodeInjection> codeInjections}) {
+    this._codeInjections = codeInjections;
     return this.loadUrl('http://localhost:$_serverPort/$uri');
   }
 
@@ -299,10 +303,21 @@ class WebViewPlusController implements WebViewController {
   Future<void> scrollTo(int x, int y) {
     return _webViewController.scrollTo(x, y);
   }
+
+  _close() {
+    _server.close();
+    _httpStreamController.close();
+  }
+
+  Future<void> _startServer() async {
+    this._httpStream = this._httpStreamController.stream;
+    this._serverPort = await _server.start(this._httpStreamController,
+        codeInjections: () => _codeInjections);
+  }
 }
 
 class _WebViewPlusState extends State<WebViewPlus> {
-  WebViewFlutterPlusServer _server;
+  WebViewPlusController _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -313,9 +328,9 @@ class _WebViewPlusState extends State<WebViewPlus> {
       javascriptMode: widget.javascriptMode,
       javascriptChannels: widget.javascriptChannels,
       onWebViewCreated: (controller) {
-        _server = WebViewFlutterPlusServer()
-          ..start(widget.onRequest, widget.codeInjection).then((port) {
-            widget.onWebViewCreated(WebViewPlusController._(controller, port));
+        _controller = WebViewPlusController._(controller)
+          .._startServer().then((_) {
+            widget.onWebViewCreated(_controller);
           });
       },
       debuggingEnabled: widget.debuggingEnabled,
@@ -331,7 +346,7 @@ class _WebViewPlusState extends State<WebViewPlus> {
 
   @override
   void dispose() {
-    _server.close();
+    _controller._close();
     super.dispose();
   }
 }

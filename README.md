@@ -28,7 +28,7 @@ Do check [**flutter_tex**](https://pub.dartlang.org/packages/flutter_tex) a powe
 
 ```yaml
 dependencies:
-  webview_flutter_plus: ^0.1.1+3
+  webview_flutter_plus: ^0.1.1+4
 ```
 
 **2:** You can install packages from the command line:
@@ -52,8 +52,11 @@ Make sure to add this line `android:usesCleartextTraffic="true"` in your `<proje
 
 Required Permissions are:
 ```xml
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 ```
+
 ### iOS
 Add following code in your `<project-directory>/ios/Runner/Info.plist`
 ```plist

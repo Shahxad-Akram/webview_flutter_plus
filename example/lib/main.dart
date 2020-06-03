@@ -34,7 +34,7 @@ class _WebViewPlusExampleMainPageState
       body: ListView(
         children: [
           SizedBox(
-            height: _height,
+            height: 100,
             child: WebViewPlus(
               onWebViewCreated: (controller) {
                 this._controller = controller;
