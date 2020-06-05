@@ -20,8 +20,8 @@ class WebViewFlutterPlusServer {
   }
 
   ///Starts the server
-  Future<int> start(StreamController<HttpRequest> onRequest,
-      {List<CodeInjection> Function() codeInjections}) async {
+  Future<int> start(Function(HttpRequest httpRequest) onRequest,
+      List<CodeInjection> Function() codeInjections) async {
     var completer = new Completer<int>();
     runZoned(() {
       HttpServer.bind('localhost', 0, shared: true).then((server) {
@@ -29,16 +29,16 @@ class WebViewFlutterPlusServer {
         this._port = server.port;
         this._server = server;
         server.listen((HttpRequest httpRequest) async {
-          onRequest.add(httpRequest);
+          if (onRequest != null) onRequest(httpRequest);
           var body = List<int>();
           var path = httpRequest.requestedUri.path;
           path = (path.startsWith('/')) ? path.substring(1) : path;
           path += (path.endsWith('/')) ? 'index.html' : '';
           try {
             body = (await rootBundle.load(path)).buffer.asUint8List();
-            if (codeInjections.call() != null) {
+            if (codeInjections != null) {
               String bodyString = String.fromCharCodes(body);
-              for (CodeInjection codeInjection in codeInjections.call()) {
+              for (CodeInjection codeInjection in codeInjections()) {
                 bodyString = bodyString.replaceFirst(
                     codeInjection.from, codeInjection.to);
               }

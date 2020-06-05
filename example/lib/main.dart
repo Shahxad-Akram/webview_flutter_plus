@@ -29,7 +29,7 @@ class _WebViewPlusExampleMainPageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('InAppWebApp Example'),
+        title: Text('webview_flutter_plus Example'),
       ),
       body: ListView(
         children: [
@@ -38,11 +38,17 @@ class _WebViewPlusExampleMainPageState
             child: WebViewPlus(
               onWebViewCreated: (controller) {
                 this._controller = controller;
-                controller.loadAsset('assets/index.html');
+                controller.loadAsset('assets/index.html',
+                    codeInjections: () => [
+                          CodeInjection(
+                              from:
+                                  '//||||||||||||||INJECT HERE|||||||||||||||||||',
+                              to: "This is an injected Code")
+                        ]);
               },
               onPageFinished: (url) {
                 _controller.getWebviewPlusHeight().then((double height) {
-                  print("Height:  " + height.toString());
+                  print("Height: " + height.toString());
                   setState(() {
                     _height = height;
                   });

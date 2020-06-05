@@ -1,3 +1,6 @@
+## [0.1.1+5] - June 5, 2020
+* Minor API changes
+
 ## [0.1.1+4] - June 3, 2020
 * Minor Api Changes for `CodeInjection`
 

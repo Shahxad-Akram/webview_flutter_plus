@@ -12,7 +12,7 @@
 * [API differences from webview_flutter](#api-differences-from-webview_flutter)
 
 # About
-webview_flutter_plus is a powerful extension of [webview_flutter](https://pub.dartlang.org/packages/webview_flutter). This package helps to load HTML, CSS and Javascript content even from Assets or Strings. This inherits all features of webview_flutter with minor API changes.
+webview_flutter_plus is a powerful extension of [webview_flutter](https://pub.dartlang.org/packages/webview_flutter). This package helps to load Local HTML, CSS and Javascript content from Assets or Strings. This inherits all features of webview_flutter with minor API changes.
 
 Do check [**flutter_tex**](https://pub.dartlang.org/packages/flutter_tex) a powerful implementation of this package.
 
@@ -28,7 +28,7 @@ Do check [**flutter_tex**](https://pub.dartlang.org/packages/flutter_tex) a powe
 
 ```yaml
 dependencies:
-  webview_flutter_plus: ^0.1.1+4
+  webview_flutter_plus: ^0.1.1+5
 ```
 
 **2:** You can install packages from the command line:
@@ -91,19 +91,25 @@ WebViewPlus(
   )
 ```
 
-#### Loading from Assets
+#### Loading from Assets with code Injection
 It is mandatory to mention all associated HTML, CSS and Javascript files in `pubspecs.yaml` under `assets:`
 ```dart
 WebViewPlus(
     javascriptMode: JavascriptMode.unrestricted,
     onWebViewCreated: (controller) {
-      controller.loadAsset("assets/index.html");
+      controller.loadAsset('assets/index.html',
+          codeInjections: () => [
+                CodeInjection(
+                    from:
+                        '//||||||||||||||INJECT HERE|||||||||||||||||||',
+                    to: "This is an injected Code")
+              ]);  // you need to  add '//||||||||||||||INJECT HERE|||||||||||||||||||' in your index.html where you want to inject code.
     },
   )
 ```
 
 #### Use in ListView
-`WebViewPlusController` also allows you to get `WebViewPlus` like `controller.getWebviewPlusHeight()`
+`WebViewPlusController` also allows you to get `WebViewPlus` height like `controller.getWebviewPlusHeight()`
 
 ```dart
 WebViewPlusController _controller;

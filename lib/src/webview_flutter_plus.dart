@@ -188,20 +188,11 @@ class WebViewPlus extends StatefulWidget {
 
 class WebViewPlusController implements WebViewController {
   final WebViewController _webViewController;
-  final WebViewFlutterPlusServer _server;
-  final StreamController<HttpRequest> _httpStreamController;
-
-  Stream<HttpRequest> _httpStream;
+  WebViewFlutterPlusServer _server;
 
   int _serverPort;
 
-  List<CodeInjection> _codeInjections;
-
-  WebViewPlusController._(this._webViewController)
-      : this._httpStreamController = StreamController<HttpRequest>(),
-        this._server = WebViewFlutterPlusServer();
-
-  Stream<HttpRequest> get onHttpRequest => _httpStream;
+  WebViewPlusController._(this._webViewController);
 
   @override
   Future<bool> canGoBack() {
@@ -274,8 +265,11 @@ class WebViewPlusController implements WebViewController {
     return _webViewController.goForward();
   }
 
-  Future<void> loadAsset(String uri, {List<CodeInjection> codeInjections}) {
-    this._codeInjections = codeInjections;
+  Future<void> loadAsset(String uri,
+      {List<CodeInjection> Function() codeInjections,
+      Function(HttpRequest request) onRequest}) async {
+    this._server = WebViewFlutterPlusServer();
+    this._serverPort = await _server.start(onRequest, codeInjections);
     return this.loadUrl('http://localhost:$_serverPort/$uri');
   }
 
@@ -305,14 +299,7 @@ class WebViewPlusController implements WebViewController {
   }
 
   _close() {
-    _server.close();
-    _httpStreamController.close();
-  }
-
-  Future<void> _startServer() async {
-    this._httpStream = this._httpStreamController.stream;
-    this._serverPort = await _server.start(this._httpStreamController,
-        codeInjections: () => _codeInjections);
+    _server?.close();
   }
 }
 
@@ -328,10 +315,8 @@ class _WebViewPlusState extends State<WebViewPlus> {
       javascriptMode: widget.javascriptMode,
       javascriptChannels: widget.javascriptChannels,
       onWebViewCreated: (controller) {
-        _controller = WebViewPlusController._(controller)
-          .._startServer().then((_) {
-            widget.onWebViewCreated(_controller);
-          });
+        _controller = WebViewPlusController._(controller);
+        widget.onWebViewCreated(_controller);
       },
       debuggingEnabled: widget.debuggingEnabled,
       gestureNavigationEnabled: widget.gestureNavigationEnabled,
