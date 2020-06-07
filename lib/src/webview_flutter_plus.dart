@@ -266,10 +266,9 @@ class WebViewPlusController implements WebViewController {
   }
 
   Future<void> loadAsset(String uri,
-      {List<CodeInjection> Function() codeInjections,
-      Function(HttpRequest request) onRequest}) async {
+      {Function(HttpRequest request) onRequest}) async {
     this._server = WebViewFlutterPlusServer();
-    this._serverPort = await _server.start(onRequest, codeInjections);
+    this._serverPort = await _server.start(onRequest);
     return this.loadUrl('http://localhost:$_serverPort/$uri');
   }
 

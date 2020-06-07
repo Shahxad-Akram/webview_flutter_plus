@@ -38,13 +38,7 @@ class _WebViewPlusExampleMainPageState
             child: WebViewPlus(
               onWebViewCreated: (controller) {
                 this._controller = controller;
-                controller.loadAsset('assets/index.html',
-                    codeInjections: () => [
-                          CodeInjection(
-                              from:
-                                  '//||||||||||||||INJECT HERE|||||||||||||||||||',
-                              to: "This is an injected Code")
-                        ]);
+                controller.loadAsset('assets/index.html');
               },
               onPageFinished: (url) {
                 _controller.getWebviewPlusHeight().then((double height) {
