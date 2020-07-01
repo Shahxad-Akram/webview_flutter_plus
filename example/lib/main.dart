@@ -34,14 +34,14 @@ class _WebViewPlusExampleMainPageState
       body: ListView(
         children: [
           SizedBox(
-            height: 100,
+            height: 500,
             child: WebViewPlus(
+              initialUrl: 'assets/index.html',
               onWebViewCreated: (controller) {
                 this._controller = controller;
-                controller.loadAsset('assets/index.html');
               },
               onPageFinished: (url) {
-                _controller.getWebviewPlusHeight().then((double height) {
+                _controller.getHeight().then((double height) {
                   print("Height: " + height.toString());
                   setState(() {
                     _height = height;

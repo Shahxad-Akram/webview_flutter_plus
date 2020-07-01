@@ -4,29 +4,26 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
 
-class WebViewFlutterPlusServer {
-  HttpServer _server;
-  int _port;
+class WebviewPlusServer {
+  static HttpServer _server;
 
   ///Closes the server.
-  Future<void> close() async {
-    if (this._server != null) {
-      await this._server.close(force: true);
+  static Future<void> close() async {
+    if (_server != null) {
+      await _server.close(force: true);
       //  print('Server running on http://localhost:$_port closed');
-      this._server = null;
+      _server = null;
     }
   }
 
   ///Starts the server
-  Future<int> start(Function(HttpRequest httpRequest) onRequest) async {
+  static Future<int> start({int port}) async {
     var completer = new Completer<int>();
     runZoned(() {
-      HttpServer.bind('localhost', 0, shared: true).then((server) {
-        //   print('Server running on http://localhost:' + _port.toString());
-        this._port = server.port;
-        this._server = server;
+      HttpServer.bind('localhost', port ?? 0, shared: true).then((server) {
+        //print('Server running on http://localhost:' + 5353.toString());
+        _server = server;
         server.listen((HttpRequest httpRequest) async {
-          if (onRequest != null) onRequest(httpRequest);
           var body = List<int>();
           var path = httpRequest.requestedUri.path;
           path = (path.startsWith('/')) ? path.substring(1) : path;
@@ -47,12 +44,13 @@ class WebViewFlutterPlusServer {
               contentType = mimeType.split('/');
             }
           }
+
           httpRequest.response.headers.contentType =
               new ContentType(contentType[0], contentType[1], charset: 'utf-8');
           httpRequest.response.add(body);
           httpRequest.response.close();
         });
-        completer.complete(_port);
+        completer.complete(server.port);
       });
     }, onError: (e, stackTrace) => print('Error: $e $stackTrace'));
     return completer.future;

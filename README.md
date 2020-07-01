@@ -97,7 +97,7 @@ It is mandatory to mention all associated HTML, CSS and Javascript files in `pub
 WebViewPlus(
     javascriptMode: JavascriptMode.unrestricted,
     onWebViewCreated: (controller) {
-      controller.loadAsset('assets/index.html',
+      controller.loadUrl('assets/index.html',
           codeInjections: () => [
                 CodeInjection(
                     from:
@@ -128,7 +128,7 @@ return Scaffold(
         child: WebViewPlus(
           onWebViewCreated: (controller) {
             this._controller = controller;
-            controller.loadAsset('assets/index.html');
+            controller.loadUrl('assets/index.html');
           },
           onPageFinished: (url) {
             _controller.getWebviewPlusHeight().then((double height) {
@@ -150,7 +150,7 @@ return Scaffold(
 # Plus APIs
 `WebViewPlusController controller;`
 
-* `controller.loadAsset('path/to/index.html')` load HTML content from Assets.
+* `controller.loadUrl('path/to/index.html')` load HTML content from Assets.
 * `controller.loadString(r"<html>HTML, CSS and Javascript code in raw string</html>");` load HTML, CSS and Javascript Code from a String.
 * `controller.getWebviewPlusHeight()` returns height of WebViewPlus.
 

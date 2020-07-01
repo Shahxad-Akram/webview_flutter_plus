@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -9,19 +8,11 @@ import 'package:webview_flutter_plus/src/webview_flutter_plus_server.dart';
 
 typedef void WebViewPlusCreatedCallback(WebViewPlusController controller);
 
-class CodeInjection {
-  /// Targeted Code in index.html
-  final String from;
-
-  /// Code to replace with.
-  final String to;
-
-  CodeInjection({@required this.from, @required this.to});
-}
-
 class WebViewPlus extends StatefulWidget {
   /// If not null invoked once the web view is created.
   final WebViewPlusCreatedCallback onWebViewCreated;
+
+  final int port;
 
   /// Which gestures should be consumed by the web view.
   ///
@@ -162,37 +153,38 @@ class WebViewPlus extends StatefulWidget {
   /// `onWebViewCreated` callback once the web view is created.
   ///
   /// The `javascriptMode` and `autoMediaPlaybackPolicy` parameters must not be null.
-  const WebViewPlus(
-      {Key key,
-      this.onWebViewCreated,
-      this.initialUrl,
-      this.javascriptMode = JavascriptMode.disabled,
-      this.javascriptChannels,
-      this.navigationDelegate,
-      this.gestureRecognizers,
-      this.onPageStarted,
-      this.onPageFinished,
-      this.onWebResourceError,
-      this.debuggingEnabled = false,
-      this.gestureNavigationEnabled = false,
-      this.userAgent,
-      this.initialMediaPlaybackPolicy =
-          AutoMediaPlaybackPolicy.require_user_action_for_all_media_types})
-      : assert(javascriptMode != null),
+  const WebViewPlus({
+    Key key,
+    this.port,
+    this.onWebViewCreated,
+    this.initialUrl,
+    this.javascriptMode = JavascriptMode.disabled,
+    this.javascriptChannels,
+    this.navigationDelegate,
+    this.gestureRecognizers,
+    this.onPageStarted,
+    this.onPageFinished,
+    this.onWebResourceError,
+    this.debuggingEnabled = false,
+    this.gestureNavigationEnabled = false,
+    this.userAgent,
+    this.initialMediaPlaybackPolicy =
+        AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
+  })  : assert(javascriptMode != null),
         assert(initialMediaPlaybackPolicy != null),
         super(key: key);
 
   @override
-  _WebViewPlusState createState() => _WebViewPlusState();
+  State<StatefulWidget> createState() => _WebViewPlusState();
 }
 
 class WebViewPlusController implements WebViewController {
   final WebViewController _webViewController;
-  WebViewFlutterPlusServer _server;
+  final int _port;
 
-  int _serverPort;
+  WebViewPlusController._(this._webViewController, this._port);
 
-  WebViewPlusController._(this._webViewController);
+  int get serverPort => _port;
 
   @override
   Future<bool> canGoBack() {
@@ -219,26 +211,8 @@ class WebViewPlusController implements WebViewController {
     return _webViewController.evaluateJavascript(javascriptString);
   }
 
-  @override
-  Future<int> getScrollX() {
-    return _webViewController.getScrollX();
-  }
-
-  @override
-  Future<int> getScrollY() {
-    return _webViewController.getScrollY();
-  }
-
-  int getServerPort() {
-    return _serverPort;
-  }
-
-  @override
-  Future<String> getTitle() {
-    return _webViewController.getTitle();
-  }
-
-  Future<double> getWebviewPlusHeight() async {
+  /// Return the height of [WebViewPlus]
+  Future<double> getHeight() async {
     String getHeightScript = r"""
     getWebviewFlutterPlusHeight();
     function getWebviewFlutterPlusHeight(){
@@ -256,6 +230,21 @@ class WebViewPlusController implements WebViewController {
   }
 
   @override
+  Future<int> getScrollX() {
+    return _webViewController.getScrollX();
+  }
+
+  @override
+  Future<int> getScrollY() {
+    return _webViewController.getScrollY();
+  }
+
+  @override
+  Future<String> getTitle() {
+    return _webViewController.getTitle();
+  }
+
+  @override
   Future<void> goBack() {
     return _webViewController.goBack();
   }
@@ -265,21 +254,21 @@ class WebViewPlusController implements WebViewController {
     return _webViewController.goForward();
   }
 
-  Future<void> loadAsset(String uri,
-      {Function(HttpRequest request) onRequest}) async {
-    this._server = WebViewFlutterPlusServer();
-    this._serverPort = await _server.start(onRequest);
-    return this.loadUrl('http://localhost:$_serverPort/$uri');
-  }
-
-  Future<void> loadString(String code) {
-    return this
-        .loadUrl(Uri.dataFromString(code, mimeType: 'text/html').toString());
+  /// Loads Web content hardcoded in string.
+  Future<void> loadString(String code, {Map<String, String> headers}) {
+    return this.loadUrl(
+        Uri.dataFromString(code, mimeType: 'text/html').toString(),
+        headers: headers);
   }
 
   @override
   Future<void> loadUrl(String url, {Map<String, String> headers}) {
-    return _webViewController.loadUrl(url, headers: headers);
+    bool _validURL = Uri.parse(url).isAbsolute;
+    if (_validURL) {
+      return _webViewController.loadUrl(url, headers: headers);
+    } else {
+      return _loadAsset(url, headers: headers);
+    }
   }
 
   @override
@@ -297,40 +286,66 @@ class WebViewPlusController implements WebViewController {
     return _webViewController.scrollTo(x, y);
   }
 
-  _close() {
-    _server?.close();
+  Future<void> _loadAsset(String uri, {Map<String, String> headers}) async {
+    return this.loadUrl('http://localhost:$_port/$uri', headers: headers);
   }
 }
 
 class _WebViewPlusState extends State<WebViewPlus> {
-  WebViewPlusController _controller;
+  Completer<int> _portCompleter = Completer<int>();
+
+  _WebViewPlusState() {
+    WebviewPlusServer.start(port: widget?.port)
+        .then((_port) => _portCompleter.complete(_port));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return WebView(
-      key: widget.key,
-      onPageStarted: widget.onPageStarted,
-      onPageFinished: widget.onPageFinished,
-      javascriptMode: widget.javascriptMode,
-      javascriptChannels: widget.javascriptChannels,
-      onWebViewCreated: (controller) {
-        _controller = WebViewPlusController._(controller);
-        widget.onWebViewCreated(_controller);
+    return FutureBuilder(
+      future: _portCompleter.future,
+      builder: (BuildContext context, AsyncSnapshot<int> snap) {
+        if (snap.hasData && !snap.hasError) {
+          print(snap.data);
+          return WebView(
+            key: widget.key,
+            onPageStarted: widget.onPageStarted,
+            onPageFinished: widget.onPageFinished,
+            javascriptMode: widget.javascriptMode,
+            javascriptChannels: widget.javascriptChannels,
+            onWebViewCreated: (controller) {
+              widget.onWebViewCreated
+                  ?.call(WebViewPlusController._(controller, snap.data));
+            },
+            debuggingEnabled: widget.debuggingEnabled,
+            gestureNavigationEnabled: widget.gestureNavigationEnabled,
+            gestureRecognizers: widget.gestureRecognizers,
+            initialMediaPlaybackPolicy: widget.initialMediaPlaybackPolicy,
+            initialUrl: _getInitialUrl(widget.initialUrl, snap.data),
+            navigationDelegate: widget.navigationDelegate,
+            onWebResourceError: widget.onWebResourceError,
+            userAgent: widget.userAgent,
+          );
+        } else {
+          return SizedBox.shrink();
+        }
       },
-      debuggingEnabled: widget.debuggingEnabled,
-      gestureNavigationEnabled: widget.gestureNavigationEnabled,
-      gestureRecognizers: widget.gestureRecognizers,
-      initialMediaPlaybackPolicy: widget.initialMediaPlaybackPolicy,
-      initialUrl: widget.initialUrl,
-      navigationDelegate: widget.navigationDelegate,
-      onWebResourceError: widget.onWebResourceError,
-      userAgent: widget.userAgent,
     );
   }
 
   @override
   void dispose() {
-    _controller._close();
+    WebviewPlusServer.close();
     super.dispose();
+  }
+
+  String _getInitialUrl(String url, int port) {
+    if (url != null) {
+      if (Uri.parse(url).isAbsolute) {
+        return url;
+      } else {
+        return 'http://localhost:$port/$url';
+      }
+    } else
+      return null;
   }
 }
