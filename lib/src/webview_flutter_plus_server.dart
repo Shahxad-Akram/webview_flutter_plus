@@ -17,10 +17,10 @@ class WebviewPlusServer {
   }
 
   ///Starts the server
-  static Future<int> start({int port}) async {
+  static Future<int> start() async {
     var completer = new Completer<int>();
     runZoned(() {
-      HttpServer.bind('localhost', port ?? 0, shared: true).then((server) {
+      HttpServer.bind('localhost', 0, shared: true).then((server) {
         //print('Server running on http://localhost:' + 5353.toString());
         _server = server;
         server.listen((HttpRequest httpRequest) async {

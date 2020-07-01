@@ -12,8 +12,6 @@ class WebViewPlus extends StatefulWidget {
   /// If not null invoked once the web view is created.
   final WebViewPlusCreatedCallback onWebViewCreated;
 
-  final int port;
-
   /// Which gestures should be consumed by the web view.
   ///
   /// It is possible for other gesture recognizers to be competing with the web view on pointer
@@ -155,7 +153,6 @@ class WebViewPlus extends StatefulWidget {
   /// The `javascriptMode` and `autoMediaPlaybackPolicy` parameters must not be null.
   const WebViewPlus({
     Key key,
-    this.port,
     this.onWebViewCreated,
     this.initialUrl,
     this.javascriptMode = JavascriptMode.disabled,
@@ -295,7 +292,8 @@ class _WebViewPlusState extends State<WebViewPlus> {
   Completer<int> _portCompleter = Completer<int>();
 
   _WebViewPlusState() {
-    WebviewPlusServer.start(port: widget?.port)
+
+    WebviewPlusServer.start()
         .then((_port) => _portCompleter.complete(_port));
   }
 
@@ -305,7 +303,6 @@ class _WebViewPlusState extends State<WebViewPlus> {
       future: _portCompleter.future,
       builder: (BuildContext context, AsyncSnapshot<int> snap) {
         if (snap.hasData && !snap.hasError) {
-          print(snap.data);
           return WebView(
             key: widget.key,
             onPageStarted: widget.onPageStarted,

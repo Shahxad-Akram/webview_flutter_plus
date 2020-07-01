@@ -1,6 +1,9 @@
 ## [0.1.1+7] - Jul 1, 2020
 * Minor changes.
 
+## [0.1.1+7] - Jul 1, 2020
+* Minor changes.
+
 ## [0.1.1+6] - June 5, 2020
 * Minor api changes.
 * `controller.loadUrl()` can be used to load file from assets.
