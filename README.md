@@ -28,7 +28,7 @@ Do check [**flutter_tex**](https://pub.dartlang.org/packages/flutter_tex) a powe
 
 ```yaml
 dependencies:
-  webview_flutter_plus: ^0.1.1+8
+  webview_flutter_plus: ^0.1.1+9
 ```
 
 **2:** You can install packages from the command line:
@@ -91,19 +91,13 @@ WebViewPlus(
   )
 ```
 
-#### Loading from Assets with code Injection
+#### Loading from Assets
 It is mandatory to mention all associated HTML, CSS and Javascript files in `pubspecs.yaml` under `assets:`
 ```dart
 WebViewPlus(
     javascriptMode: JavascriptMode.unrestricted,
     onWebViewCreated: (controller) {
-      controller.loadUrl('assets/index.html',
-          codeInjections: () => [
-                CodeInjection(
-                    from:
-                        '//||||||||||||||INJECT HERE|||||||||||||||||||',
-                    to: "This is an injected Code")
-              ]);  // you need to  add '//||||||||||||||INJECT HERE|||||||||||||||||||' in your index.html where you want to inject code.
+      controller.loadUrl('assets/index.html');
     },
   )
 ```

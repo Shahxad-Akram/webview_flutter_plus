@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -252,9 +253,19 @@ class WebViewPlusController implements WebViewController {
   }
 
   /// Loads Web content hardcoded in string.
-  Future<void> loadString(String code, {Map<String, String> headers}) {
+  Future<void> loadString(String code,
+      {Map<String, String> headers,
+      String mimeType = 'text/html',
+      Encoding encoding,
+      Map<String, String> parameters,
+      bool base64 = false}) {
     return this.loadUrl(
-        Uri.dataFromString(code, mimeType: 'text/html').toString(),
+        Uri.dataFromString(code,
+                base64: base64,
+                parameters: parameters,
+                mimeType: mimeType,
+                encoding: encoding ?? Encoding.getByName('utf-8'))
+            .toString(),
         headers: headers);
   }
 
@@ -292,9 +303,7 @@ class _WebViewPlusState extends State<WebViewPlus> {
   Completer<int> _portCompleter = Completer<int>();
 
   _WebViewPlusState() {
-
-    WebviewPlusServer.start()
-        .then((_port) => _portCompleter.complete(_port));
+    WebviewPlusServer.start().then((_port) => _portCompleter.complete(_port));
   }
 
   @override
