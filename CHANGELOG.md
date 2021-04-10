@@ -1,3 +1,9 @@
+## [0.2.0] - Apr 10, 2021
+* Migration to null-safety.
+
+## [0.1.1+10] - Oct 10, 2020
+* Dependencies upgrade.
+
 ## [0.1.1+9] - Jul 5, 2020
 * Minor changes.
 

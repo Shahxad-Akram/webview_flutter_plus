@@ -11,7 +11,7 @@ typedef void WebViewPlusCreatedCallback(WebViewPlusController controller);
 
 class WebViewPlus extends StatefulWidget {
   /// If not null invoked once the web view is created.
-  final WebViewPlusCreatedCallback onWebViewCreated;
+  final WebViewPlusCreatedCallback? onWebViewCreated;
 
   /// Which gestures should be consumed by the web view.
   ///
@@ -22,10 +22,10 @@ class WebViewPlus extends StatefulWidget {
   ///
   /// When this set is empty or null, the web view will only handle pointer events for gestures that
   /// were not claimed by any other gesture recognizer.
-  final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
+  final Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers;
 
   /// The initial URL to load.
-  final String initialUrl;
+  final String? initialUrl;
 
   /// Whether Javascript execution is enabled.
   final JavascriptMode javascriptMode;
@@ -57,7 +57,7 @@ class WebViewPlus extends StatefulWidget {
   /// channels in the list.
   ///
   /// A null value is equivalent to an empty set.
-  final Set<JavascriptChannel> javascriptChannels;
+  final Set<JavascriptChannel>? javascriptChannels;
 
   /// A delegate function that decides how to handle navigation actions.
   ///
@@ -81,10 +81,17 @@ class WebViewPlus extends StatefulWidget {
   ///     * When a navigationDelegate is set pages with frames are not properly handled by the
   ///       webview, and frames will be opened in the main frame.
   ///     * When a navigationDelegate is set HTTP requests do not include the HTTP referer header.
-  final NavigationDelegate navigationDelegate;
+  final NavigationDelegate? navigationDelegate;
+
+  /// Controls whether inline playback of HTML5 videos is allowed on iOS.
+  ///
+  /// This field is ignored on Android because Android allows it by default.
+  ///
+  /// By default `allowsInlineMediaPlayback` is false.
+  final bool allowsInlineMediaPlayback;
 
   /// Invoked when a page starts loading.
-  final PageStartedCallback onPageStarted;
+  final PageStartedCallback? onPageStarted;
 
   /// Invoked when a page has finished loading.
   ///
@@ -96,13 +103,16 @@ class WebViewPlus extends StatefulWidget {
   /// When invoked on iOS or Android, any Javascript code that is embedded
   /// directly in the HTML has been loaded and code injected with
   /// [WebViewController.evaluateJavascript] can assume this.
-  final PageFinishedCallback onPageFinished;
+  final PageFinishedCallback? onPageFinished;
+
+  /// Invoked when a page is loading.
+  final PageLoadingCallback? onProgress;
 
   /// Invoked when a web resource has failed to load.
   ///
   /// This can be called for any resource (iframe, image, etc.), not just for
   /// the main page.
-  final WebResourceErrorCallback onWebResourceError;
+  final WebResourceErrorCallback? onWebResourceError;
 
   /// Controls whether WebView debugging is enabled.
   ///
@@ -136,7 +146,7 @@ class WebViewPlus extends StatefulWidget {
   /// user agent.
   ///
   /// By default `userAgent` is null.
-  final String userAgent;
+  final String? userAgent;
 
   /// Which restrictions apply on automatic media playback.
   ///
@@ -152,23 +162,25 @@ class WebViewPlus extends StatefulWidget {
   /// `onWebViewCreated` callback once the web view is created.
   ///
   /// The `javascriptMode` and `autoMediaPlaybackPolicy` parameters must not be null.
-  const WebViewPlus({
-    Key key,
-    this.onWebViewCreated,
-    this.initialUrl,
-    this.javascriptMode = JavascriptMode.disabled,
-    this.javascriptChannels,
-    this.navigationDelegate,
-    this.gestureRecognizers,
-    this.onPageStarted,
-    this.onPageFinished,
-    this.onWebResourceError,
-    this.debuggingEnabled = false,
-    this.gestureNavigationEnabled = false,
-    this.userAgent,
-    this.initialMediaPlaybackPolicy =
-        AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
-  })  : assert(javascriptMode != null),
+  const WebViewPlus(
+      {Key? key,
+      this.onWebViewCreated,
+      this.allowsInlineMediaPlayback = false,
+      this.initialUrl,
+      this.javascriptMode = JavascriptMode.disabled,
+      this.javascriptChannels,
+      this.navigationDelegate,
+      this.gestureRecognizers,
+      this.onPageStarted,
+      this.onPageFinished,
+      this.onWebResourceError,
+      this.debuggingEnabled = false,
+      this.gestureNavigationEnabled = false,
+      this.userAgent,
+      this.initialMediaPlaybackPolicy =
+          AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
+      this.onProgress})
+      : assert(javascriptMode != null),
         assert(initialMediaPlaybackPolicy != null),
         super(key: key);
 
@@ -178,11 +190,11 @@ class WebViewPlus extends StatefulWidget {
 
 class WebViewPlusController implements WebViewController {
   final WebViewController _webViewController;
-  final int _port;
+  final int? _port;
 
   WebViewPlusController._(this._webViewController, this._port);
 
-  int get serverPort => _port;
+  int? get serverPort => _port;
 
   @override
   Future<bool> canGoBack() {
@@ -200,7 +212,7 @@ class WebViewPlusController implements WebViewController {
   }
 
   @override
-  Future<String> currentUrl() {
+  Future<String?> currentUrl() {
     return _webViewController.currentUrl();
   }
 
@@ -238,7 +250,7 @@ class WebViewPlusController implements WebViewController {
   }
 
   @override
-  Future<String> getTitle() {
+  Future<String?> getTitle() {
     return _webViewController.getTitle();
   }
 
@@ -254,10 +266,10 @@ class WebViewPlusController implements WebViewController {
 
   /// Loads Web content hardcoded in string.
   Future<void> loadString(String code,
-      {Map<String, String> headers,
+      {Map<String, String>? headers,
       String mimeType = 'text/html',
-      Encoding encoding,
-      Map<String, String> parameters,
+      Encoding? encoding,
+      Map<String, String>? parameters,
       bool base64 = false}) {
     return this.loadUrl(
         Uri.dataFromString(code,
@@ -270,7 +282,7 @@ class WebViewPlusController implements WebViewController {
   }
 
   @override
-  Future<void> loadUrl(String url, {Map<String, String> headers}) {
+  Future<void> loadUrl(String url, {Map<String, String>? headers}) {
     bool _validURL = Uri.parse(url).isAbsolute;
     if (_validURL) {
       return _webViewController.loadUrl(url, headers: headers);
@@ -294,7 +306,7 @@ class WebViewPlusController implements WebViewController {
     return _webViewController.scrollTo(x, y);
   }
 
-  Future<void> _loadAsset(String uri, {Map<String, String> headers}) async {
+  Future<void> _loadAsset(String uri, {Map<String, String>? headers}) async {
     return this.loadUrl('http://localhost:$_port/$uri', headers: headers);
   }
 }
@@ -344,7 +356,7 @@ class _WebViewPlusState extends State<WebViewPlus> {
     super.dispose();
   }
 
-  String _getInitialUrl(String url, int port) {
+  String? _getInitialUrl(String? url, int? port) {
     if (url != null) {
       if (Uri.parse(url).isAbsolute) {
         return url;

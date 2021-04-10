@@ -34,7 +34,7 @@ class _WebViewPlusExampleMainPageState
       body: ListView(
         children: [
           SizedBox(
-            height: 500,
+            height: _height,
             child: WebViewPlus(
               initialUrl: 'assets/index.html',
               onWebViewCreated: (controller) {
