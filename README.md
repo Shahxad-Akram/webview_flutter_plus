@@ -28,7 +28,7 @@ Do check [**flutter_tex**](https://pub.dartlang.org/packages/flutter_tex) a powe
 
 ```yaml
 dependencies:
-  webview_flutter_plus: ^0.2.0
+  webview_flutter_plus: ^0.2.1+1
 ```
 
 **2:** You can install packages from the command line:
@@ -154,7 +154,7 @@ There are very minor API differences as following.
 webview_flutter          |webview_flutter_plus
 :-----------------------:|:---------------------------:
 `WebView`                |`WebViewPlus`
-`WebViewPlusController`  |`WebViewPlusController`
+`WebViewController`      |`WebViewController` + `WebViewPlusController`
 `WebViewCreatedCallback` |`WebViewPlusCreatedCallback`
 
 Rest everything is same as webview_flutter.

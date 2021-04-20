@@ -1,14 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mime/mime.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_plus/src/webview_flutter_plus_server.dart';
 
-typedef void WebViewPlusCreatedCallback(WebViewPlusController controller);
+/// Optional callback invoked when a web view is first created. [controller] is
+/// the [WebViewController] for the created web view.
+typedef void WebViewPlusCreatedCallback(
+  WebViewPlusController controller,
+);
 
+/// A web view widget for showing html content.
+///
+/// There is a known issue that on iOS 13.4 and 13.5, other flutter widgets covering
+/// the `WebView` is not able to block the `WebView` from receiving touch events.
+/// See https://github.com/flutter/flutter/issues/53490.
 class WebViewPlus extends StatefulWidget {
   /// If not null invoked once the web view is created.
   final WebViewPlusCreatedCallback? onWebViewCreated;
@@ -158,116 +169,71 @@ class WebViewPlus extends StatefulWidget {
 
   /// Creates a new web view.
   ///
-  /// The web view can be controlled using a `WebViewController` that is passed to the
+  /// The web view can be controlled using a `WebViewControllerPlus` that is passed to the
   /// `onWebViewCreated` callback once the web view is created.
   ///
   /// The `javascriptMode` and `autoMediaPlaybackPolicy` parameters must not be null.
-  const WebViewPlus(
-      {Key? key,
-      this.onWebViewCreated,
-      this.allowsInlineMediaPlayback = false,
-      this.initialUrl,
-      this.javascriptMode = JavascriptMode.disabled,
-      this.javascriptChannels,
-      this.navigationDelegate,
-      this.gestureRecognizers,
-      this.onPageStarted,
-      this.onPageFinished,
-      this.onWebResourceError,
-      this.debuggingEnabled = false,
-      this.gestureNavigationEnabled = false,
-      this.userAgent,
-      this.initialMediaPlaybackPolicy =
-          AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
-      this.onProgress})
-      : assert(javascriptMode != null),
-        assert(initialMediaPlaybackPolicy != null),
-        super(key: key);
+  const WebViewPlus({
+    Key? key,
+    this.onWebViewCreated,
+    this.initialUrl,
+    this.javascriptMode = JavascriptMode.disabled,
+    this.javascriptChannels,
+    this.navigationDelegate,
+    this.gestureRecognizers,
+    this.onPageStarted,
+    this.onPageFinished,
+    this.onProgress,
+    this.onWebResourceError,
+    this.debuggingEnabled = false,
+    this.gestureNavigationEnabled = false,
+    this.userAgent,
+    this.initialMediaPlaybackPolicy =
+        AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
+    this.allowsInlineMediaPlayback = false,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _WebViewPlusState();
 }
 
-class WebViewPlusController implements WebViewController {
+class WebViewPlusController {
   final WebViewController _webViewController;
   final int? _port;
 
   WebViewPlusController._(this._webViewController, this._port);
 
+  /// Return port of local running server.
   int? get serverPort => _port;
 
-  @override
-  Future<bool> canGoBack() {
-    return _webViewController.canGoBack();
-  }
+  /// Return [WebViewController] from [WebView]
 
-  @override
-  Future<bool> canGoForward() {
-    return _webViewController.canGoForward();
-  }
-
-  @override
-  Future<void> clearCache() {
-    return _webViewController.clearCache();
-  }
-
-  @override
-  Future<String?> currentUrl() {
-    return _webViewController.currentUrl();
-  }
-
-  @override
-  Future<String> evaluateJavascript(String javascriptString) {
-    return _webViewController.evaluateJavascript(javascriptString);
-  }
+  WebViewController get webViewController => _webViewController;
 
   /// Return the height of [WebViewPlus]
   Future<double> getHeight() async {
     String getHeightScript = r"""
-    getWebviewFlutterPlusHeight();
-    function getWebviewFlutterPlusHeight(){
-    var element = document.body;
-    var height = element.offsetHeight,
-        style = window.getComputedStyle(element)
-    return ['top', 'bottom']
-        .map(function (side) {
-            return parseInt(style["margin-" + side]);
-        })
-        .reduce(function (total, side) {
-            return total + side;
-        }, height)}""";
-    return double.parse(await evaluateJavascript(getHeightScript));
-  }
-
-  @override
-  Future<int> getScrollX() {
-    return _webViewController.getScrollX();
-  }
-
-  @override
-  Future<int> getScrollY() {
-    return _webViewController.getScrollY();
-  }
-
-  @override
-  Future<String?> getTitle() {
-    return _webViewController.getTitle();
-  }
-
-  @override
-  Future<void> goBack() {
-    return _webViewController.goBack();
-  }
-
-  @override
-  Future<void> goForward() {
-    return _webViewController.goForward();
+        getWebviewFlutterPlusHeight();
+        function getWebviewFlutterPlusHeight() {
+            var element = document.body;
+            var height = element.offsetHeight,
+                style = window.getComputedStyle(element)
+            return ['top', 'bottom']
+                .map(function (side) {
+                    return parseInt(style["margin-" + side]);
+                })
+                .reduce(function (total, side) {
+                    return total + side;
+                }, height)
+        }""";
+    return double.parse(
+        await _webViewController.evaluateJavascript(getHeightScript));
   }
 
   /// Loads Web content hardcoded in string.
   Future<void> loadString(String code,
       {Map<String, String>? headers,
-      String mimeType = 'text/html',
+      String? mimeType,
       Encoding? encoding,
       Map<String, String>? parameters,
       bool base64 = false}) {
@@ -281,7 +247,6 @@ class WebViewPlusController implements WebViewController {
         headers: headers);
   }
 
-  @override
   Future<void> loadUrl(String url, {Map<String, String>? headers}) {
     bool _validURL = Uri.parse(url).isAbsolute;
     if (_validURL) {
@@ -291,23 +256,62 @@ class WebViewPlusController implements WebViewController {
     }
   }
 
-  @override
-  Future<void> reload() {
-    return _webViewController.reload();
-  }
-
-  @override
-  Future<void> scrollBy(int x, int y) {
-    return _webViewController.scrollBy(x, y);
-  }
-
-  @override
-  Future<void> scrollTo(int x, int y) {
-    return _webViewController.scrollTo(x, y);
-  }
-
   Future<void> _loadAsset(String uri, {Map<String, String>? headers}) async {
     return this.loadUrl('http://localhost:$_port/$uri', headers: headers);
+  }
+}
+
+class _Server {
+  static HttpServer? _server;
+
+  ///Closes the server.
+  static Future<void> close() async {
+    if (_server != null) {
+      await _server!.close(force: true);
+      //  print('Server running on http://localhost:$_port closed');
+      _server = null;
+    }
+  }
+
+  ///Starts the server
+  static Future<int> start() async {
+    var completer = Completer<int>();
+
+    runZonedGuarded(() {
+      HttpServer.bind('localhost', 0, shared: true).then((server) {
+        //print('Server running on http://localhost:' + 5353.toString());
+        _server = server;
+        server.listen((HttpRequest httpRequest) async {
+          List<int> body = [];
+          String path = httpRequest.requestedUri.path;
+          path = (path.startsWith('/')) ? path.substring(1) : path;
+          path += (path.endsWith('/')) ? 'index.html' : '';
+          try {
+            body = (await rootBundle.load(path)).buffer.asUint8List();
+          } catch (e) {
+            print('Error: $e');
+            httpRequest.response.close();
+            return;
+          }
+          var contentType = ['text', 'html'];
+          if (!httpRequest.requestedUri.path.endsWith('/') &&
+              httpRequest.requestedUri.pathSegments.isNotEmpty) {
+            String? mimeType = lookupMimeType(httpRequest.requestedUri.path,
+                headerBytes: body);
+            if (mimeType != null) {
+              contentType = mimeType.split('/');
+            }
+          }
+
+          httpRequest.response.headers.contentType =
+              ContentType(contentType[0], contentType[1], charset: 'utf-8');
+          httpRequest.response.add(body);
+          httpRequest.response.close();
+        });
+        completer.complete(server.port);
+      });
+    }, (e, stackTrace) => print('Error: $e $stackTrace'));
+    return completer.future;
   }
 }
 
@@ -315,7 +319,7 @@ class _WebViewPlusState extends State<WebViewPlus> {
   Completer<int> _portCompleter = Completer<int>();
 
   _WebViewPlusState() {
-    WebviewPlusServer.start().then((_port) => _portCompleter.complete(_port));
+    _Server.start().then((_port) => _portCompleter.complete(_port));
   }
 
   @override
@@ -325,6 +329,8 @@ class _WebViewPlusState extends State<WebViewPlus> {
       builder: (BuildContext context, AsyncSnapshot<int> snap) {
         if (snap.hasData && !snap.hasError) {
           return WebView(
+            allowsInlineMediaPlayback: widget.allowsInlineMediaPlayback,
+            onProgress: widget.onProgress,
             key: widget.key,
             onPageStarted: widget.onPageStarted,
             onPageFinished: widget.onPageFinished,
@@ -352,7 +358,7 @@ class _WebViewPlusState extends State<WebViewPlus> {
 
   @override
   void dispose() {
-    WebviewPlusServer.close();
+    _Server.close();
     super.dispose();
   }
 

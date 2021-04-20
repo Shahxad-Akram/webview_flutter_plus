@@ -36,6 +36,7 @@ class _WebViewPlusExampleMainPageState
           SizedBox(
             height: _height,
             child: WebViewPlus(
+              javascriptChannels: null,
               initialUrl: 'assets/index.html',
               onWebViewCreated: (controller) {
                 this._controller = controller;
