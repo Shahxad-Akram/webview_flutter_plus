@@ -225,7 +225,7 @@ class WebViewPlusController {
                 .reduce(function (total, side) {
                     return total + side;
                 }, height)
-        }""";
+              }""";
     return double.parse(
         await _webViewController.evaluateJavascript(getHeightScript));
   }
@@ -233,7 +233,7 @@ class WebViewPlusController {
   /// Loads Web content hardcoded in string.
   Future<void> loadString(String code,
       {Map<String, String>? headers,
-      String? mimeType,
+      String? mimeType = 'text/html',
       Encoding? encoding,
       Map<String, String>? parameters,
       bool base64 = false}) {
@@ -302,7 +302,6 @@ class _Server {
               contentType = mimeType.split('/');
             }
           }
-
           httpRequest.response.headers.contentType =
               ContentType(contentType[0], contentType[1], charset: 'utf-8');
           httpRequest.response.add(body);
@@ -336,10 +335,8 @@ class _WebViewPlusState extends State<WebViewPlus> {
             onPageFinished: widget.onPageFinished,
             javascriptMode: widget.javascriptMode,
             javascriptChannels: widget.javascriptChannels,
-            onWebViewCreated: (controller) {
-              widget.onWebViewCreated
-                  ?.call(WebViewPlusController._(controller, snap.data));
-            },
+            onWebViewCreated: (controller) => widget.onWebViewCreated
+                ?.call(WebViewPlusController._(controller, snap.data)),
             debuggingEnabled: widget.debuggingEnabled,
             gestureNavigationEnabled: widget.gestureNavigationEnabled,
             gestureRecognizers: widget.gestureRecognizers,
