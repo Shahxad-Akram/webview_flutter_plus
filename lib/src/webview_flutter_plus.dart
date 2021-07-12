@@ -315,16 +315,10 @@ class _Server {
 }
 
 class _WebViewPlusState extends State<WebViewPlus> {
-  Completer<int> _portCompleter = Completer<int>();
-
-  _WebViewPlusState() {
-    _Server.start().then((_port) => _portCompleter.complete(_port));
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _portCompleter.future,
+      future: _Server.start(),
       builder: (BuildContext context, AsyncSnapshot<int> snap) {
         if (snap.hasData && !snap.hasError) {
           return WebView(
