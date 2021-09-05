@@ -268,7 +268,6 @@ class _Server {
   static Future<void> close() async {
     if (_server != null) {
       await _server!.close(force: true);
-      //  print('Server running on http://localhost:$_port closed');
       _server = null;
     }
   }
@@ -279,7 +278,6 @@ class _Server {
 
     runZonedGuarded(() {
       HttpServer.bind('localhost', 0, shared: true).then((server) {
-        //print('Server running on http://localhost:' + 5353.toString());
         _server = server;
         server.listen((HttpRequest httpRequest) async {
           List<int> body = [];
@@ -320,29 +318,27 @@ class _WebViewPlusState extends State<WebViewPlus> {
     return FutureBuilder(
       future: _Server.start(),
       builder: (BuildContext context, AsyncSnapshot<int> snap) {
-        if (snap.hasData && !snap.hasError) {
-          return WebView(
-            allowsInlineMediaPlayback: widget.allowsInlineMediaPlayback,
-            onProgress: widget.onProgress,
-            key: widget.key,
-            onPageStarted: widget.onPageStarted,
-            onPageFinished: widget.onPageFinished,
-            javascriptMode: widget.javascriptMode,
-            javascriptChannels: widget.javascriptChannels,
-            onWebViewCreated: (controller) => widget.onWebViewCreated
-                ?.call(WebViewPlusController._(controller, snap.data)),
-            debuggingEnabled: widget.debuggingEnabled,
-            gestureNavigationEnabled: widget.gestureNavigationEnabled,
-            gestureRecognizers: widget.gestureRecognizers,
-            initialMediaPlaybackPolicy: widget.initialMediaPlaybackPolicy,
-            initialUrl: _getInitialUrl(widget.initialUrl, snap.data),
-            navigationDelegate: widget.navigationDelegate,
-            onWebResourceError: widget.onWebResourceError,
-            userAgent: widget.userAgent,
-          );
-        } else {
-          return SizedBox.shrink();
-        }
+        return snap.hasData && !snap.hasError
+            ? WebView(
+                allowsInlineMediaPlayback: widget.allowsInlineMediaPlayback,
+                onProgress: widget.onProgress,
+                key: widget.key,
+                onPageStarted: widget.onPageStarted,
+                onPageFinished: widget.onPageFinished,
+                javascriptMode: widget.javascriptMode,
+                javascriptChannels: widget.javascriptChannels,
+                onWebViewCreated: (controller) => widget.onWebViewCreated
+                    ?.call(WebViewPlusController._(controller, snap.data)),
+                debuggingEnabled: widget.debuggingEnabled,
+                gestureNavigationEnabled: widget.gestureNavigationEnabled,
+                gestureRecognizers: widget.gestureRecognizers,
+                initialMediaPlaybackPolicy: widget.initialMediaPlaybackPolicy,
+                initialUrl: _getInitialUrl(widget.initialUrl, snap.data),
+                navigationDelegate: widget.navigationDelegate,
+                onWebResourceError: widget.onWebResourceError,
+                userAgent: widget.userAgent,
+              )
+            : SizedBox.shrink();
       },
     );
   }
