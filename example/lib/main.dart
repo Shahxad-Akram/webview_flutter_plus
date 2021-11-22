@@ -22,7 +22,7 @@ class WebViewPlusExampleMainPage extends StatefulWidget {
 
 class _WebViewPlusExampleMainPageState
     extends State<WebViewPlusExampleMainPage> {
-  WebViewPlusController _controller;
+  WebViewPlusController? _controller;
   double _height = 1000;
 
   @override
@@ -42,7 +42,7 @@ class _WebViewPlusExampleMainPageState
                 this._controller = controller;
               },
               onPageFinished: (url) {
-                _controller.getHeight().then((double height) {
+                _controller?.getHeight().then((double height) {
                   print("Height: " + height.toString());
                   setState(() {
                     _height = height;

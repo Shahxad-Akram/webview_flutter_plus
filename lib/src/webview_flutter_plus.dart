@@ -113,7 +113,7 @@ class WebViewPlus extends StatefulWidget {
   ///
   /// When invoked on iOS or Android, any Javascript code that is embedded
   /// directly in the HTML has been loaded and code injected with
-  /// [WebViewController.evaluateJavascript] can assume this.
+  /// [WebViewController.runJavascript] can assume this.
   final PageFinishedCallback? onPageFinished;
 
   /// Invoked when a page is loading.
@@ -159,6 +159,15 @@ class WebViewPlus extends StatefulWidget {
   /// By default `userAgent` is null.
   final String? userAgent;
 
+  /// A Boolean value indicating whether the WebView should support zooming
+  /// using its on-screen zoom controls and gestures.
+  ///
+  /// *Note: On iOS [javascriptMode] must be set to
+  /// [JavascriptMode.unrestricted] in order to set [zoomEnabled] to false
+  ///
+  /// By default 'zoomEnabled' is true
+  final bool zoomEnabled;
+
   /// Which restrictions apply on automatic media playback.
   ///
   /// This initial value is applied to the platform's webview upon creation. Any following
@@ -188,6 +197,7 @@ class WebViewPlus extends StatefulWidget {
     this.debuggingEnabled = false,
     this.gestureNavigationEnabled = false,
     this.userAgent,
+    this.zoomEnabled = true,
     this.initialMediaPlaybackPolicy =
         AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
     this.allowsInlineMediaPlayback = false,
@@ -227,7 +237,7 @@ class WebViewPlusController {
                 }, height)
               }""";
     return double.parse(
-        await _webViewController.evaluateJavascript(getHeightScript));
+        await _webViewController.runJavascriptReturningResult(getHeightScript));
   }
 
   /// Loads Web content hardcoded in string.
@@ -320,6 +330,7 @@ class _WebViewPlusState extends State<WebViewPlus> {
       builder: (BuildContext context, AsyncSnapshot<int> snap) {
         return snap.hasData && !snap.hasError
             ? WebView(
+                zoomEnabled: widget.zoomEnabled,
                 allowsInlineMediaPlayback: widget.allowsInlineMediaPlayback,
                 onProgress: widget.onProgress,
                 key: widget.key,

@@ -1,3 +1,6 @@
+## [0.2.3+1] - Nov 22, 2021
+* Add iOS-specific note to set JavascriptMode.unrestricted in order to set zoomEnabled: false.
+
 ## [0.2.3] - Sep 05, 2021
 * Minor Fixes.
 
