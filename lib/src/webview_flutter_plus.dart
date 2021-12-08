@@ -323,6 +323,16 @@ class _Server {
 }
 
 class _WebViewPlusState extends State<WebViewPlus> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsFlutterBinding.ensureInitialized();
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
