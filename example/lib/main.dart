@@ -27,7 +27,7 @@ class WebViewPlusExampleMainPage extends StatefulWidget {
 class _WebViewPlusExampleMainPageState
     extends State<WebViewPlusExampleMainPage> {
   WebViewPlusController? _controller;
-  double _height = 1000;
+  double _height = 1;
 
   @override
   Widget build(BuildContext context) {
