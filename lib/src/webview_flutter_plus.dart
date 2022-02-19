@@ -12,8 +12,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_android_cookie_manager.dart';
-import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 
 /// Optional callback invoked when a web view is first created. [controller] is
 /// the [WebViewController] for the created web view.
@@ -846,41 +844,6 @@ class WebViewPlusController {
   Future<void> _loadAsset(String uri, {Map<String, String>? headers}) async {
     return this.loadUrl('http://localhost:$_port/$uri', headers: headers);
   }
-}
-
-/// Manages cookies pertaining to all [WebViewPlus]s.
-class CookieManager {
-  /// Creates a [CookieManager] -- returns the instance if it's already been called.
-  factory CookieManager() {
-    return _instance ??= CookieManager._();
-  }
-
-  CookieManager._() {
-    if (WebViewCookieManagerPlatform.instance == null) {
-      if (Platform.isAndroid) {
-        WebViewCookieManagerPlatform.instance = WebViewAndroidCookieManager();
-      } else if (Platform.isIOS) {
-        WebViewCookieManagerPlatform.instance = WKWebViewCookieManager();
-      } else {
-        throw AssertionError(
-            'This platform is currently unsupported by webview_flutter.');
-      }
-    }
-  }
-
-  static CookieManager? _instance;
-
-  /// Clears all cookies for all [WebViewPlus] instances.
-  ///
-  /// Returns true if cookies were present before clearing, else false.
-  Future<bool> clearCookies() =>
-      WebViewCookieManagerPlatform.instance!.clearCookies();
-
-  /// Sets a cookie for all [WebViewPlus] instances.
-  ///
-  /// This is a no op on iOS versions below 11.
-  Future<void> setCookie(WebViewCookie cookie) =>
-      WebViewCookieManagerPlatform.instance!.setCookie(cookie);
 }
 
 // Throws an ArgumentError if `url` is not a valid URL string.

@@ -1,3 +1,7 @@
+## [0.3.0+1] - Feb 19, 2022
+* Minor fixes.
+
+
 ## [0.3.0] - Feb 19, 2022
 # Project has been restarted due to some issues with [webview_flutter](https://pub.dartlang.org/packages/webview_flutter).
 
