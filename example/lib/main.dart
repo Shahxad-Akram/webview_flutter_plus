@@ -25,7 +25,34 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  late WebViewPlusController _controler;
+  late WebViewControllerPlus _controler;
+
+  @override
+  void initState() {
+    _controler = WebViewControllerPlus()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (String url) {
+            // Get height of WebviewPlus
+            _controler.getWebViewHeight().then((value) {
+              var height = int.parse(value.toString()).toDouble();
+              if (height != _height) {
+                if (kDebugMode) {
+                  print("Height is: $value");
+                }
+                setState(() {
+                  _height = height;
+                });
+              }
+            });
+          },
+        ),
+      )
+      ..loadAssetServer('assets/index.html');
+    super.initState();
+  }
 
   double _height = 0;
 
@@ -41,42 +68,19 @@ class _MainPageState extends State<MainPage> {
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(
               height: _height,
-              child: WebviewPlusBuilder(
-                (controler) {
-                  if (kDebugMode) {
-                    print("Server port: ${controler.port}");
-                  }
-                  _controler = controler
-                    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                    ..setBackgroundColor(const Color(0x00000000))
-                    ..setNavigationDelegate(
-                      NavigationDelegate(
-                        onPageFinished: (String url) {
-                          // Get height of WebviewPlus
-                          _controler.getWebViewHeight().then((value) {
-                            var height = int.parse(value.toString()).toDouble();
-                            if (height != _height) {
-                              if (kDebugMode) {
-                                print("Height is: $value");
-                              }
-                              setState(() {
-                                _height = height;
-                              });
-                            }
-                          });
-                        },
-                      ),
-                    )
-                    ..loadAssetOnServer('assets/index.html');
-                  return WebViewWidget(
-                    controller: controler,
-                  );
-                },
+              child: WebViewWidget(
+                controller: _controler,
               ),
             ),
             const Text("End of WebviewPlus",
                 style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ));
+  }
+
+  @override
+  void dispose() {
+    _controler.closeServer();
+    super.dispose();
   }
 }
