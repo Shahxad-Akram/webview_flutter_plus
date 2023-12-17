@@ -1,11 +1,12 @@
+## [0.4.0] - Dec 16, 2023
+# Major changes, see the example.
+# Much simplified.
+
 ## [0.3.0+1] - Feb 19, 2022
 * Minor fixes.
 
-
 ## [0.3.0] - Feb 19, 2022
 # Project has been restarted due to some issues with [webview_flutter](https://pub.dartlang.org/packages/webview_flutter).
-
-
 
 ## [0.2.4] - Jan 09, 2022
 # `Package has been deprecated` in the favor of [webview_flutter](https://pub.dartlang.org/packages/webview_flutter).
