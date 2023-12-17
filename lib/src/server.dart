@@ -1,52 +1,15 @@
 import 'package:flutter/foundation.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
 
-class WebViewControllerPlus extends WebViewController {
+class WebViewServer {
   HttpServer? _server;
 
-  WebViewControllerPlus({
-    super.onPermissionRequest,
-  });
-
-  /// Return the height of [WebViewPlus]
-  Future<Object> getWebViewHeight() async {
-    String getHeightScript = r"""
-        getWebviewHeight();
-        function getWebviewHeight() {
-            var element = document.body;
-            var height = element.offsetHeight,
-                style = window.getComputedStyle(element)
-            return ['top', 'bottom']
-                .map(function (side) {
-                    return parseInt(style["margin-" + side]);
-                })
-                .reduce(function (total, side) {
-                    return total + side;
-                }, height)
-              }
-              
-              """;
-    return await super.runJavaScriptReturningResult(getHeightScript);
-  }
-
-  Future<void> loadAssetServer(
-    String uri, {
-    LoadRequestMethod method = LoadRequestMethod.get,
-    Map<String, String> headers = const <String, String>{},
-    Uint8List? body,
-  }) async {
-    var port = await _start();
-    return super.loadRequest(Uri.parse('http://localhost:$port/$uri'),
-        headers: headers, body: body, method: method);
-  }
-
   ///Closes the server.
-  Future<void> closeServer() async {
+  Future<void> close() async {
     if (_server != null) {
       await _server!.close(force: true);
       _server = null;
@@ -54,7 +17,7 @@ class WebViewControllerPlus extends WebViewController {
   }
 
   ///Starts the server
-  Future<int> _start() async {
+  Future<int> start() async {
     var completer = Completer<int>();
 
     runZonedGuarded(() {

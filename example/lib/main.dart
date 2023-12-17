@@ -80,7 +80,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
-    _controler.closeServer();
+    _controler.server.close();
     super.dispose();
   }
 }

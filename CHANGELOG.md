@@ -1,4 +1,7 @@
-## [0.4.2] - Dec 16, 2023
+## [0.4.3] - Dec 17, 2023
+# Major changes, see the example.
+
+## [0.4.2] - Dec 17, 2023
 # Major changes, see the example.
 
 ## [0.4.1] - Dec 16, 2023
