@@ -1,3 +1,6 @@
+## [0.4.1] - Dec 16, 2023
+* Minor fix.
+
 ## [0.4.0] - Dec 16, 2023
 # Major changes, see the example.
 # Much simplified.

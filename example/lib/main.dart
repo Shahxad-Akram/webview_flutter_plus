@@ -25,7 +25,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  late WebViewPlusControler _controler;
+  late WebViewPlusController _controler;
 
   double _height = 0;
 

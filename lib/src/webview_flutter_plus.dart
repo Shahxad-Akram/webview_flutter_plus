@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
 
 class WebviewPlusBuilder extends StatefulWidget {
-  final WebViewWidget Function(WebViewPlusControler controler) webViewWidget;
+  final WebViewWidget Function(WebViewPlusController controler) webViewWidget;
   final Function(WebViewPermissionRequest request)? onPermissionRequest;
   const WebviewPlusBuilder(this.webViewWidget,
       {super.key, this.onPermissionRequest});
@@ -29,7 +29,7 @@ class _WebviewPlusBuilderState extends State<WebviewPlusBuilder> {
           if (kDebugMode) {
             print("Server started on port: ${snap.data}");
           }
-          return widget.webViewWidget(WebViewPlusControler._(snap.data!,
+          return widget.webViewWidget(WebViewPlusController._(snap.data!,
               onPermissionRequest: widget.onPermissionRequest));
         } else {
           if (kDebugMode) {
@@ -42,10 +42,10 @@ class _WebviewPlusBuilderState extends State<WebviewPlusBuilder> {
   }
 }
 
-class WebViewPlusControler extends WebViewController {
+class WebViewPlusController extends WebViewController {
   final int _port;
 
-  WebViewPlusControler._(
+  WebViewPlusController._(
     this._port, {
     super.onPermissionRequest,
   });
