@@ -34,48 +34,50 @@ class _MainPageState extends State<MainPage> {
       ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageFinished: (String url) {
-            // Get height of WebviewPlus
-            _controler.getWebViewHeight().then((value) {
-              var height = int.parse(value.toString()).toDouble();
-              if (height != _height) {
-                if (kDebugMode) {
-                  print("Height is: $value");
+          onPageStarted: (url) {
+            _controler.onLoaded((msg) {
+              _controler.getWebViewHeight().then((value) {
+                var height = int.parse(value.toString()).toDouble();
+                if (height != _height) {
+                  if (kDebugMode) {
+                    print("Height is: $value");
+                  }
+                  setState(() {
+                    _height = height;
+                  });
                 }
-                setState(() {
-                  _height = height;
-                });
-              }
+              });
             });
           },
         ),
       )
-      ..loadAssetServer('assets/index.html');
+      ..loadFlutterAssetServer('assets/index.html');
     super.initState();
   }
 
-  double _height = 0;
+  double _height = 0.1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('webview_flutter_plus Example'),
-        ),
-        body: ListView(
-          children: [
-            Text("Height of WebviewPlus: $_height",
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(
-              height: _height,
-              child: WebViewWidget(
-                controller: _controler,
-              ),
+      appBar: AppBar(
+        title: const Text('webview_flutter_plus Example'),
+      ),
+      body: ListView(
+        children: [
+          Text("Height of WebviewPlus: $_height",
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          SizedBox(
+            height: _height,
+            child: WebViewWidget(
+              controller: _controler,
             ),
-            const Text("End of WebviewPlus",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ));
+          ),
+          const Text("End of WebviewPlus",
+              style: TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
   }
 
   @override

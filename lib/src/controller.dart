@@ -16,8 +16,7 @@ class WebViewControllerPlus extends WebViewController {
 
   /// Return the height of [WebViewWidget]
   Future<Object> getWebViewHeight() async {
-    String getHeightScript = r"""
-        getWebviewHeight();
+    String getHeightScript = r"""getWebviewHeight();
         function getWebviewHeight() {
             var element = document.body;
             var height = element.offsetHeight,
@@ -29,14 +28,21 @@ class WebViewControllerPlus extends WebViewController {
                 .reduce(function (total, side) {
                     return total + side;
                 }, height)
-              }
-              
-              """;
+              }""";
     return await super.runJavaScriptReturningResult(getHeightScript);
   }
 
+  /// Event fires when the entire page (including all its resources like images, scripts, and stylesheets) has finished loading.
+  Future<Object> onLoaded(Function(String message) onLoadedCallback) async {
+    super.addJavaScriptChannel("OnLoadedCallback", onMessageReceived: (msg) {
+      onLoadedCallback(msg.message);
+    });
+    return await super.runJavaScriptReturningResult(
+        """window.onload = function () {OnLoadedCallback.postMessage("Page Loaded...!");}""");
+  }
+
   /// Load assets on server
-  Future<void> loadAssetServer(
+  Future<void> loadFlutterAssetServer(
     String uri, {
     LoadRequestMethod method = LoadRequestMethod.get,
     Map<String, String> headers = const <String, String>{},
