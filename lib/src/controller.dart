@@ -29,16 +29,8 @@ class WebViewControllerPlus extends WebViewController {
                     return total + side;
                 }, height)
               }""";
-    return await super.runJavaScriptReturningResult(getHeightScript);
-  }
 
-  /// Event fires when the entire page (including all its resources like images, scripts, and stylesheets) has finished loading.
-  Future<Object> onLoaded(Function(String message) onLoadedCallback) async {
-    super.addJavaScriptChannel("OnLoadedCallback", onMessageReceived: (msg) {
-      onLoadedCallback(msg.message);
-    });
-    return await super.runJavaScriptReturningResult(
-        """window.onload = function () {OnLoadedCallback.postMessage("Page Loaded...!");}""");
+    return await super.runJavaScriptReturningResult(getHeightScript);
   }
 
   /// Load assets on server

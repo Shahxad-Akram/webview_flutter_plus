@@ -45,15 +45,33 @@
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/flutter_lints-3.0.1",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/flutter_lints-3.0.2",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.1"
     },
     {
       "name": "flutter_test",
       "rootUri": "file:///home/shahzad/flutter/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.2"
+    },
+    {
+      "name": "leak_tracker",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/leak_tracker-10.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "leak_tracker_flutter_testing",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/leak_tracker_flutter_testing-2.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "leak_tracker_testing",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/leak_tracker_testing-2.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
     },
     {
       "name": "lints",
@@ -63,37 +81,37 @@
     },
     {
       "name": "matcher",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/matcher-0.12.16",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/matcher-0.12.16+1",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.0"
     },
     {
       "name": "material_color_utilities",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/material_color_utilities-0.5.0",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/material_color_utilities-0.8.0",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     },
     {
       "name": "meta",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/meta-1.10.0",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/meta-1.11.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
       "name": "mime",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/mime-1.0.4",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/mime-1.0.5",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.2"
     },
     {
       "name": "path",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/path-1.8.3",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/path-1.9.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.0"
     },
     {
       "name": "plugin_platform_interface",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/plugin_platform_interface-2.1.7",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/plugin_platform_interface-2.1.8",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -146,34 +164,34 @@
       "languageVersion": "2.14"
     },
     {
-      "name": "web",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/web-0.3.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
-    },
-    {
-      "name": "webview_flutter",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/webview_flutter-4.4.2",
-      "packageUri": "lib/",
-      "languageVersion": "2.19"
-    },
-    {
-      "name": "webview_flutter_android",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/webview_flutter_android-3.13.0",
+      "name": "vm_service",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/vm_service-13.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
+      "name": "webview_flutter",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/webview_flutter-4.7.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "webview_flutter_android",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/webview_flutter_android-3.16.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
       "name": "webview_flutter_platform_interface",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/webview_flutter_platform_interface-2.8.0",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/webview_flutter_platform_interface-2.10.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "webview_flutter_wkwebview",
-      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/webview_flutter_wkwebview-3.9.4",
+      "rootUri": "file:///home/shahzad/.pub-cache/hosted/pub.dev/webview_flutter_wkwebview-3.13.0",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.2"
     },
     {
       "name": "webview_flutter_plus",
@@ -182,7 +200,7 @@
       "languageVersion": "3.2"
     }
   ],
-  "generated": "2023-12-25T20:04:51.711077Z",
+  "generated": "2024-04-26T23:46:47.000958Z",
   "generator": "pub",
-  "generatorVersion": "3.2.3"
+  "generatorVersion": "3.3.4"
 }

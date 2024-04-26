@@ -52,6 +52,9 @@ class WebViewServer {
           httpRequest.response.close();
         });
         completer.complete(server.port);
+        if (kDebugMode) {
+          print("Server started on port: ${server.port}");
+        }
       });
     }, (e, stackTrace) {
       if (kDebugMode) {

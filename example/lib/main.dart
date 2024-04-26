@@ -30,32 +30,30 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     _controler = WebViewControllerPlus()
+      ..loadFlutterAssetServer('assets/index.html')
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageStarted: (url) {
-            _controler.onLoaded((msg) {
-              _controler.getWebViewHeight().then((value) {
-                var height = int.parse(value.toString()).toDouble();
-                if (height != _height) {
-                  if (kDebugMode) {
-                    print("Height is: $value");
-                  }
-                  setState(() {
-                    _height = height;
-                  });
+          onPageFinished: (url) {
+            _controler.getWebViewHeight().then((value) {
+              var height = int.parse(value.toString()).toDouble();
+              if (height != _height) {
+                if (kDebugMode) {
+                  print("Height is: $value");
                 }
-              });
+                setState(() {
+                  _height = height;
+                });
+              }
             });
           },
         ),
-      )
-      ..loadFlutterAssetServer('assets/index.html');
+      );
     super.initState();
   }
 
-  double _height = 0.1;
+  double _height = 1.0;
 
   @override
   Widget build(BuildContext context) {

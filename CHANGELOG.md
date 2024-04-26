@@ -1,3 +1,7 @@
+## [0.4.5] - Dec 25, 2023
+# `onLoaded` has been removed.
+
+
 ## [0.4.4] - Dec 25, 2023
 # `onLoaded` has been implemented, fires an event when the entire page (including all its resources like images, scripts, and stylesheets) has finished loading.
 
