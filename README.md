@@ -26,7 +26,7 @@ Do check [**flutter_tex**](https://pub.dartlang.org/packages/flutter_tex) an imp
 
 ```yaml
 dependencies:
-  webview_flutter_plus: ^0.4.6
+  webview_flutter_plus: ^0.4.7
 ```
 
 **2:** You can install packages from the command line:
