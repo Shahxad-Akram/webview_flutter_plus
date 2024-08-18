@@ -75,4 +75,4 @@ import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 # Example
 
-### Please check [`example/lib/main.dart`](https://github.com/shah-xad/webview_flutter_plus/blob/master/example/lib/main.dart)
+### Please check [`example/lib/main.dart`](https://github.com/Shahxad-Akram/webview_flutter_plus/blob/master/example/lib/main.dart)
