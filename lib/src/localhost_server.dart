@@ -47,8 +47,6 @@ class LocalhostServer {
         }
 
         httpServer.listen((HttpRequest request) async {
-          Uint8List body = Uint8List(0);
-
           var path = request.requestedUri.path;
           path = (path.startsWith('/')) ? path.substring(1) : path;
           path += (path.endsWith('/')) ? directoryIndex : '';
@@ -58,6 +56,7 @@ class LocalhostServer {
           }
           path = documentRoot + path;
 
+          Uint8List body;
           try {
             body = (await rootBundle.load(Uri.decodeFull(path)))
                 .buffer
@@ -67,6 +66,7 @@ class LocalhostServer {
               print(Uri.decodeFull(path));
               print(e.toString());
             }
+            request.response.statusCode = HttpStatus.notFound;
             request.response.close();
             return;
           }
@@ -81,6 +81,45 @@ class LocalhostServer {
           }
 
           request.response.headers.contentType = contentType;
+          request.response.headers.set('Accept-Ranges', 'bytes');
+
+          final total = body.length;
+          final rangeHeader = request.headers.value('range');
+          if (rangeHeader != null) {
+            // HTML5 <video> / streaming clients request byte ranges to seek and
+            // progressively load media. Without 206 Partial Content support the
+            // video cannot be played.
+            final matches = RegExp(r'bytes=(\d*)-(\d*)').firstMatch(rangeHeader);
+            if (matches != null) {
+              final startMatch = matches.group(1)!;
+              final endMatch = matches.group(2)!;
+              var start = startMatch.isEmpty ? 0 : int.parse(startMatch);
+              var end = endMatch.isEmpty ? total - 1 : int.parse(endMatch);
+
+              if (end >= total) {
+                end = total - 1;
+              }
+
+              if (start > end || start >= total) {
+                request.response.statusCode =
+                    HttpStatus.requestedRangeNotSatisfiable;
+                request.response.headers.set('Content-Range', 'bytes */$total');
+                request.response.close();
+                return;
+              }
+
+              final length = end - start + 1;
+              request.response.statusCode = HttpStatus.partialContent;
+              request.response.headers
+                  .set('Content-Range', 'bytes $start-$end/$total');
+              request.response.headers.set('Content-Length', length.toString());
+              request.response.add(body.sublist(start, end + 1));
+              request.response.close();
+              return;
+            }
+          }
+
+          request.response.headers.set('Content-Length', total.toString());
           request.response.add(body);
           request.response.close();
         });
