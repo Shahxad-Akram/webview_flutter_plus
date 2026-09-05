@@ -38,7 +38,8 @@ class LocalhostServer {
     final completer = Completer();
 
     runZonedGuarded(() {
-      HttpServer.bind('127.0.0.1', port, shared: shared).then((httpServer) {
+      HttpServer.bind(InternetAddress.loopbackIPv4, port, shared: shared)
+          .then((httpServer) {
         server = httpServer;
         _started = true;
 
@@ -89,7 +90,8 @@ class LocalhostServer {
             // HTML5 <video> / streaming clients request byte ranges to seek and
             // progressively load media. Without 206 Partial Content support the
             // video cannot be played.
-            final matches = RegExp(r'bytes=(\d*)-(\d*)').firstMatch(rangeHeader);
+            final matches =
+                RegExp(r'bytes=(\d*)-(\d*)').firstMatch(rangeHeader);
             if (matches != null) {
               final startMatch = matches.group(1)!;
               final endMatch = matches.group(2)!;
