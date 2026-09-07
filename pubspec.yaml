@@ -12,7 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  webview_flutter: ^4.13.1
+  webview_flutter: ^4.14.1
+  webview_flutter_wkwebview: any
   mime: ^2.0.0
 
 dev_dependencies:
