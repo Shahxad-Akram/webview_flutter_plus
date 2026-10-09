@@ -20,13 +20,11 @@ dev_dependencies:
     sdk: flutter
 
 
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
 
   uses-material-design: true
 
   assets:
-    - assets/index.html
-    - assets/style.css
-    - assets/script.js
+    - assets/

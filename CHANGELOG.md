@@ -1,3 +1,6 @@
+## [0.4.21]
+* Merged [#60](https://github.com/Shahxad-Akram/webview_flutter_plus/pull/60) Updated.
+
 ## [0.4.20]
 * Dependencies upgraded.
 
