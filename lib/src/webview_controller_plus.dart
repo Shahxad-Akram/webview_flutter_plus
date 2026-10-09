@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -7,7 +8,24 @@ import 'package:flutter/services.dart';
 class WebViewControllerPlus extends WebViewController {
   WebViewControllerPlus({
     super.onPermissionRequest,
-  });
+    PlatformWebViewControllerCreationParams? creationParams,
+  }) : super.fromPlatformCreationParams(
+          creationParams ?? _defaultCreationParams(),
+        );
+
+  /// Default creation params: enable HTML5 inline media playback on iOS
+  /// (otherwise it forces fullscreen).
+  static PlatformWebViewControllerCreationParams _defaultCreationParams() {
+    final params = const PlatformWebViewControllerCreationParams();
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      return WebKitWebViewControllerCreationParams
+          .fromPlatformWebViewControllerCreationParams(
+        params,
+        allowsInlineMediaPlayback: true,
+      );
+    }
+    return params;
+  }
 
   /// Return the height of [WebViewWidget]
   Future<double> get webViewHeight => _getWebViewHeight();

@@ -6,15 +6,20 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'mime_type_resolver.dart';
 
-/// A simple HTTP server that serves files from the local file system. This class is borrowed from the `Flutter InAppWebView Plugin`.
+/// A simple HTTP server that serves files from the local file system.
+/// This class is borrowed from the `Flutter InAppWebView Plugin`.
 class LocalhostServer {
-  /// Whether the server should be shared across multiple instances of the application. If set to `true`, the server will be shared across multiple instances of the application and will not be destroyed when the application is closed.
+  /// Whether the server should be shared across multiple instances of the
+  /// application. If set to `true`, the server will be shared across multiple
+  /// instances of the application and will not be destroyed when the
+  /// application is closed.
   final bool shared;
 
   /// The index file to serve when a directory is requested. Default is `index.html`.
   final String directoryIndex;
 
-  /// The root directory where files will be served from. Default is `./`. This path is relative to the root of the application's assets.
+  /// The root directory where files will be served from. Default is `./`.
+  /// This path is relative to the root of the application's assets.
   final String documentRoot;
 
   LocalhostServer({
@@ -38,7 +43,8 @@ class LocalhostServer {
     final completer = Completer();
 
     runZonedGuarded(() {
-      HttpServer.bind('127.0.0.1', port, shared: shared).then((httpServer) {
+      HttpServer.bind(InternetAddress.loopbackIPv4, port, shared: shared)
+          .then((httpServer) {
         server = httpServer;
         _started = true;
 
@@ -47,8 +53,6 @@ class LocalhostServer {
         }
 
         httpServer.listen((HttpRequest request) async {
-          Uint8List body = Uint8List(0);
-
           var path = request.requestedUri.path;
           path = (path.startsWith('/')) ? path.substring(1) : path;
           path += (path.endsWith('/')) ? directoryIndex : '';
@@ -58,6 +62,7 @@ class LocalhostServer {
           }
           path = documentRoot + path;
 
+          Uint8List body;
           try {
             body = (await rootBundle.load(Uri.decodeFull(path)))
                 .buffer
@@ -67,6 +72,7 @@ class LocalhostServer {
               print(Uri.decodeFull(path));
               print(e.toString());
             }
+            request.response.statusCode = HttpStatus.notFound;
             request.response.close();
             return;
           }
@@ -81,6 +87,49 @@ class LocalhostServer {
           }
 
           request.response.headers.contentType = contentType;
+          request.response.headers.set(HttpHeaders.acceptRangesHeader, 'bytes');
+
+          final total = body.length;
+          final rangeHeader = request.headers.value(HttpHeaders.rangeHeader);
+          if (rangeHeader != null) {
+            // HTML5 <video> / streaming clients request byte ranges to seek and
+            // progressively load media. Without 206 Partial Content support the
+            // video cannot be played.
+            final matches =
+                RegExp(r'bytes=(\d*)-(\d*)').firstMatch(rangeHeader);
+            if (matches != null) {
+              final startMatch = matches.group(1)!;
+              final endMatch = matches.group(2)!;
+              var start = startMatch.isEmpty ? 0 : int.parse(startMatch);
+              var end = endMatch.isEmpty ? total - 1 : int.parse(endMatch);
+
+              if (end >= total) {
+                end = total - 1;
+              }
+
+              if (start > end || start >= total) {
+                request.response.statusCode =
+                    HttpStatus.requestedRangeNotSatisfiable;
+                request.response.headers
+                    .set(HttpHeaders.contentRangeHeader, 'bytes */$total');
+                request.response.close();
+                return;
+              }
+
+              final length = end - start + 1;
+              request.response.statusCode = HttpStatus.partialContent;
+              request.response.headers.set(
+                  HttpHeaders.contentRangeHeader, 'bytes $start-$end/$total');
+              request.response.headers
+                  .set(HttpHeaders.contentLengthHeader, length.toString());
+              request.response.add(body.sublist(start, end + 1));
+              request.response.close();
+              return;
+            }
+          }
+
+          request.response.headers
+              .set(HttpHeaders.contentLengthHeader, total.toString());
           request.response.add(body);
           request.response.close();
         });
@@ -131,7 +180,7 @@ class LocalhostServer {
 
   /// Returns whether the given [mimeType] is a text file or not.
   bool _isTextFile(String mimeType) {
-    final textFile = RegExp(r'^text\/|^application\/(javascript|json)');
+    final textFile = RegExp(r'^text/|^application/(javascript|json)');
     return textFile.hasMatch(mimeType);
   }
 }
